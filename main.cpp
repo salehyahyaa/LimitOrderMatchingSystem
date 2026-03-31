@@ -47,24 +47,8 @@ struct LevelInfo {                                 //used in public API's to get
 
 using LevelInfos = std::vector<LevelInfo>; //LevelInfos == objects within the array Levelinfo {object1, object2}, each object within the array have INT Price/Quantity 
 
-class OrderbookLevelInfos {
-  
-  public:
-    OrderbookLevelInfos(const LevelInfos& bids, const LevelInfos& asks)
-      : bids_ { bids },                                       //intinlizing fields within constrctor 
-        asks_ { asks }
-    { }
 
-    const LevelInfos& GetBids() const { return bids_;}       //public API
-    const LevelInfos& GetAsks() const { return asks_;}      //Public API
-
-
-  private: 
-    LevelInfos bids_;                                        //Private API
-    LevelInfos asks_;                                        //Private API //now we have the interal state of what represents an orderbook such as each row has a ask and bid price
-  };
 //now we describe things we will add to the orderbook whitch is order objects(orderType, orderID, side, price, quantity, other apis to get filled, wheather they are filled, etc)
-
 class Order {
   
   public:                                                                                      //<--constructor 
