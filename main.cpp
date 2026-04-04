@@ -71,7 +71,7 @@ class Order {
     
     void Fill(Quantity quantity) {
         if (quantity > GetRemainingQuantity())                    //if someone tried to fill more than what remains //quantity == how much someone is trying to fill
-          throw std:: logic_error(std::format("cannot be filled for more than its remaining suppl.", GetOrderId()));
+          throw std:: logic_error(std::logic_error("cannot be filled for more than its remaining suppl." + std::to_string(GetOrderId())));
         
         remainingQuantity_ =  remainingQuantity_ - quantity;
   }
@@ -123,30 +123,7 @@ WE NEED TO CREATE A REPRESENTATION FOR AN ORDER THAT CAN BE MODIFIED
 //now we have order, order modify, and orderCancel just needs the orderId
 
 
-//we now need to represent what happens when a order is matched. we will use a trade Object to represent this
-//tradeObject: an aggragation of 2 trade info objects | tradeInfoObject for the BID && tradeInfoObject for the ASK //because a bid has to match an ask and vise versa
-  struct TradeInfo {    //every TradeInfo(is an object) that has OrderId of whats traded
-    OrderId orderId_;
-    Price price_;
-    Quantity Quantity_;
-  };
 
-  class Trade {           //represents bid and ask side trades
-    public: 
-      Trade(const TradeInfo& bidTrade, const TradeInfo& askTrade)//constructor
-      : bidTrade_ { bidTrade }, //Intilizing object
-        askTrade_ { askTrade }
-    { }
-
-    const TradeInfo& GetBidTrade() const { return bidTrade_; }
-    const TradeInfo& GetAskTrade() const { return askTrade_; }//getter method
-  
-  private:
-    TradeInfo bidTrade_;
-    TradeInfo askTrade_;
-  };
-  //because there can be more than 1 order/execution we return a vector of orders since a order can take shares from multiple ask'ers causing multiple matches
-  using Trades = std::vector<Trade>;
 
   class Orderbook {
     private:                //when storing orders we'll use a map(DSA) to represent bids && asks, bids sorted in ascneding order(best bids), asks sorted in desencding order(best ask), we will have O(1) easy access based on orderId
