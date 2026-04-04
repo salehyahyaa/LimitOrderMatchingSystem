@@ -4,3 +4,4 @@ Using
 main
 Ignore
 Contents
+*.dSYM/
