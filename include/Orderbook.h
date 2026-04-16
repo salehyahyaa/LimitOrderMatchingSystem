@@ -137,8 +137,19 @@ class Orderbook {
             const auto& [order, orderIterator] = orders_.at(orderId); //COME BACK TO THIS | //lookup orderId in orders_ map, unpack OrderEntry into order(smart ptr) and orderIterator(location in linked list)
             orders_.erase(orderId); 
 
-            if (order_>GetSide()== Side::Sell) {
-              auto price ...
+            if (order->GetSide()== Side::Sell) {
+              auto price = order->GetPrice();
+              auto& orders = asks_.at(price);
+              orders.erase(orderIterator); 
+              if (orders.empty()) {                                          //removing from sell side, easily be able to remove it via iteraiator
+                asks_.erase(price);
+              }
+              else { 
+                auto price = order->GetPrice();                             
+                auto& orders = bids_.at(price);
+                orders.
+
+              }
             }
 
         }

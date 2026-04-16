@@ -1,5 +1,3 @@
-#pragma once 
-#include <Order.h>
 /*
 WE NEED TO CREATE A REPRESENTATION FOR AN ORDER THAT CAN BE MODIFIED
 -add //need's Order (orderType, orderId, side, price, quantity) 
@@ -7,6 +5,8 @@ WE NEED TO CREATE A REPRESENTATION FOR AN ORDER THAT CAN BE MODIFIED
     to modify means to cancel then replace | CANCEL == (orderId) to do, REPLACE == (price, quantity, side) to do    
 -cancel //need orderId |
 */
+#pragma once 
+#include <Order.h>
 
 
   class OrderModify {
