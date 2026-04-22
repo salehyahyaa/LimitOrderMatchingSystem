@@ -144,14 +144,19 @@ class Orderbook {
               if (orders.empty()) {                                          //removing from sell side, easily be able to remove it via iteraiator
                 asks_.erase(price);
               }
+            }
               else { 
                 auto price = order->GetPrice();                             
                 auto& orders = bids_.at(price);
-                orders.
+                orders.erase(iterator);
+                if (orders.empty()) {
+                  bids_.erase(price)
+                };
+              }    
+        }
 
-              }
-            }
-
+        Trades MatchOrder(OrderModify order) {
+          ...
         }
 
 
