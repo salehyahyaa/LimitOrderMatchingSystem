@@ -1,3 +1,5 @@
+//REPRESENTS THE AGGRAVETED INTERAL STATE OF AN ORDERBOOK -- useful for testing
+
 #pragma once 
 #include "LevelInfo.h"
 

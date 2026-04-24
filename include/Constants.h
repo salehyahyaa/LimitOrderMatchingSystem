@@ -4,5 +4,5 @@
 #include <Usings.h>
 
 struct Constants {
-    ...
+    
 };

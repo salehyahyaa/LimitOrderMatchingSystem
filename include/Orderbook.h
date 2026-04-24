@@ -1,10 +1,10 @@
 //An orderbook is a catelog that maintains all active buy and sell orders for a financial instrument, organized by price, time priority 
 #include <map> 
+#include <numeric>
 #include <unordered_map>
 #include <thread>
 #include <condition_variable>
 #include <mutex>
-
 #include "Usings.h"
 #include "Order.h"
 #include "OrderModify.h"
@@ -22,7 +22,7 @@ class Orderbook {
 
       std::map<Price, OrderPointers, std::greater<Price>> bids_;    //auto sorts highest to lowest on bids
       std::map<Price, OrderPointers, std::less<Price>> asks_;       //auto sorts lowest to highest on asks
-      std::unordered_map<OrderId,OrderEntry> orders_;               
+      std::unordered_map<OrderId,OrderEntry> orders_;               //unorderd map to know who placed order first (time priority)
 
 
       bool CanMatch(Side side, Price price) const {                 //adding match method && canMatch method 
@@ -43,10 +43,8 @@ class Orderbook {
         const auto& [bestBid, _] = *bids_.begin();
         return price <= bestBid;
         }
-      
       }
 
-       
       
         Trades MatchOrders() {
           Trades trades; 
@@ -150,26 +148,51 @@ class Orderbook {
                 auto& orders = bids_.at(price);
                 orders.erase(iterator);
                 if (orders.empty()) {
-                  bids_.erase(price)
+                  bids_.erase(price);
                 };
               }    
         }
 
+
         Trades MatchOrder(OrderModify order) {
-          if (orders_.contains(order.GetOrderId())) {
-            return { }; 
-          }
+          if (!orders_.contains(order.GetOrderId()))
+              return { };
+
           const auto& [existingOrder, _] = orders_.at(order.GetOrderId());
+          CancelOrder(order.GetOrderId());
+          return AddOrder(order.ToOrderPointer(existingOrder->GetOrderType()));
         }
 
+      std::size_t Size() const { return orders_.size(); }
 
-      };
+      OrderbookLevelInfos GetOrderInfos() const {
+          LevelInfos bidInfos, askInfos;
+          bidInfos.reserve(orders_.size());
+          askInfos.reserve(orders_.size());
 
+          auto CreateLevelInfos = [](Price price, const OrderPointers& orders) {
+              return LevelInfo{ price, std::accumulate(orders.begin(), orders.end(), (Quantity)0,
+                  [](std::size_t runningSum, const OrderPointer& order)
+                  { return runningSum + order->GetRemainingQuantity(); }) };
+          };
 
+          for (const auto& [price, orders] : bids_)
+              bidInfos.push_back(CreateLevelInfos(price, orders));
 
+          for (const auto& [price, orders] : asks_)
+              askInfos.push_back(CreateLevelInfos(price, orders));
+
+          return OrderbookLevelInfos{ bidInfos, askInfos };
+      }
+
+      int main() {  
+        return 0;
+      }
+
+};
 
 /*
 notes of time price priotirty
 so basically in the actual dict they are sorted by greater and less than depending on side
 and in a list of the orders location in memory is stored via time the orders regardless what was greater or lower but more so on the time it came in
-*/
+*/ 
