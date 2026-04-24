@@ -44,7 +44,7 @@ LimitOrderMatchingSystem/
 ├── src/
 │   ├── Orderbook.cpp
 │   └── main.cpp
-└── OrderbookTest/
+└── test/
     ├── OrderbookTest.vcxproj
     ├── OrderbookTest.vcxproj.filters
     ├── packages.config

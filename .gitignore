@@ -1,7 +1,50 @@
-.vscode
+# ===== OS Files =====
+.DS_Store
+
+# ===== Build Artifacts =====
 a.out
-Using
-main
-Ignore
-Contents
+*.out
+*.o
+*.obj
+*.exe
+*.app
+
+# ===== Debug / macOS =====
 *.dSYM/
+*.dylib
+
+# ===== CMake =====
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# ===== VS Code =====
+.vscode/
+
+# ===== Logs =====
+*.log
+
+# ===== Temp Files =====
+*.tmp
+*.temp
+*.swp
+
+# ===== Binaries =====
+bin/
+build/
+dist/
+
+# ===== Static / Dynamic Libraries =====
+*.a
+*.so
+*.dll
+
+# ===== Coverage =====
+*.gcno
+*.gcda
+*.gcov
+
+# ===== Misc =====
+*.stackdump
