@@ -1,154 +1,122 @@
-# API Overview
+# Documentation Overview – Method Reference
 
 
-# include/Side.h
-### (no methods)
-- Defines `enum class Side { Buy, Sell }`. **Type:** enum
----
+# INCLUDE
 
+## Orderbook.h
 
-# include/OrderType.h
-### (no methods)
-- Defines `enum class OrderType { GoodTillCancel, FillAndKill, GoodForDay, Market }`. **Type:** enum
----
-
-
-# include/Usings.h
-### (no methods)
-- Defines aliases used across the codebase: `Price`, `Quantity`, `OrderId`, `orderIds`. **Type:** type aliases
----
-
-
-# include/Constants.h
-### (no methods)
-- Declares `struct Constants { ... }` (fields not shown in retrieved content). **Type:** struct / constants container
----
-
-
-# include/LevelInfo.h
-### (no methods)
-- Defines `struct LevelInfo { Price price; Quantity quantity; }`. **Type:** struct (data-only)
-
-### (no methods) `LevelInfos`
-- `using LevelInfos = std::vector<LevelInfo>;`. **Type:** type alias
----
-
-
-# include/TradeInfo.h
-### (no methods)
-- Defines `struct TradeInfo { OrderId orderId_; Price price_; Quantity Quantity_; }`. **Type:** struct (data-only)
----
-
-
-# include/Trade.h
-### Trade(...)
-- Creates a `Trade` containing bid-side and ask-side `TradeInfo` for one execution. **Type:** public constructor
-
-### GetBidTrade()
-- Returns the bid-side `TradeInfo`. **Type:** public getter (const)
-
-### GetAskTrade()
-- Returns the ask-side `TradeInfo`. **Type:** public getter (const)
-
-### (no methods) `Trades`
-- `using Trades = std::vector<Trade>;` (multiple executions can result from one add). **Type:** type alias
----
-
-
-# include/Order.h
-### Order(...)
-- Constructs an order and initializes fill-tracking quantities. **Type:** public constructor
-
-### GetOrderId()
-- Returns the order ID. **Type:** public getter (const)
-
-### GetSide()
-- Returns the side (`Buy`/`Sell`). **Type:** public getter (const)
-
-### GetPrice()
-- Returns the limit price. **Type:** public getter (const)
-
-### GetOrderType()
-- Returns the order type/time-in-force. **Type:** public getter (const)
-
-### GetInitialQuantity()
-- Returns the original quantity. **Type:** public getter (const)
-
-### GetRemainingQuantity()
-- Returns unfilled quantity remaining. **Type:** public getter (const)
-
-### GetFilledQuantity()
-- Returns filled quantity (`initial - remaining`). **Type:** public computed getter (const)
-
-### isFilled()
-- Returns whether the order is fully filled. **Type:** public predicate (const)
-
-### Fill(quantity)
-- Fills `quantity` from the remaining quantity; throws if it would overfill. **Type:** public mutator
-
-### (no methods) `OrderPointer`
-- `using OrderPointer = std::shared_ptr<Order>;`. **Type:** type alias
-
-### (no methods) `OrderPointers`
-- `using OrderPointers = std::list<OrderPointer>;` (stable iterators). **Type:** type alias
----
-
-
-# include/OrderModify.h
-### OrderModify(...)
-- Constructs a modify request (id + new side/price/quantity). **Type:** public constructor
-
-### GetOrderId()
-- Returns which order ID to modify. **Type:** public getter (const)
-
-### GetPrice()
-- Returns the replacement price. **Type:** public getter (const)
-
-### GetSide()
-- Returns the replacement side. **Type:** public getter (const)
-
-### GetQuantity()
-- Returns the replacement quantity. **Type:** public getter (const)
-
-### ToOrderPointer(type)
-- Builds a new `OrderPointer` using this modify request and the provided `OrderType`. **Type:** public converter / factory (const)
-
----
-
-
-# include/OrderbookLevelInfos.h
-### OrderbookLevelInfos(...)
-- Constructs a container for bid/ask `LevelInfos` snapshots. **Type:** public constructor
-
-### GetBids()
-- Returns the bid-side level infos. **Type:** public getter (const)
-
-### GetAsks()
-- Returns the ask-side level infos. **Type:** public getter (const)
----
-
-
-# include/Orderbook.h
 ### Addorder(order)
-- Adds an order (skips duplicates), then matches and returns resulting `Trades`; rejects `FillAndKill` if no immediate match is possible. **Type:** public command / entrypoint
+- Adds a new order (ignores duplicate IDs), inserts it into bids/asks, then matches and returns the resulting trades. Also short-circuits `FillAndKill` if it can’t immediately match. **Type:** public command
 
 ### CancelOrder(orderId)
-- Cancels an order by id (no-op if not found) and removes it from internal structures. **Type:** public command
+- Cancels an order by ID (no-op if not found) and removes it from the internal book structures. **Type:** public command
 
 ### CanMatch(side, price)
 - Checks whether an incoming order at `price` can match the current best price on the opposite side. **Type:** private helper (const)
 
 ### MatchOrders()
-- Matches orders while best bid >= best ask, performs fills, removes filled orders/empty levels, returns all executions. **Type:** private helper / matching engine
----
+- Core matching loop: while best bid >= best ask, fills quantities, removes filled orders/empty levels, and returns all executions. **Type:** private helper
 
+## Order.h
 
-# src/Orderbook.cpp
+### Order(orderType, orderId, side, price, quantity)
+- Creates an order and initializes fill tracking (initial and remaining quantities). **Type:** public constructor
+
+### GetOrderId()
+- Returns the order’s unique ID. **Type:** public getter (const)
+
+### GetSide()
+- Returns `Buy` or `Sell`. **Type:** public getter (const)
+
+### GetPrice()
+- Returns the limit price. **Type:** public getter (const)
+
+### GetOrderType()
+- Returns the time-in-force / order type. **Type:** public getter (const)
+
+### GetInitialQuantity()
+- Returns the original submitted quantity. **Type:** public getter (const)
+
+### GetRemainingQuantity()
+- Returns how much is still open/unfilled. **Type:** public getter (const)
+
+### GetFilledQuantity()
+- Returns how much has been filled (`initial - remaining`). **Type:** public computed getter (const)
+
+### isFilled()
+- Returns whether the order is fully filled (remaining == 0). **Type:** public predicate (const)
+
+### Fill(quantity)
+- Decreases remaining quantity by `quantity`; throws if `quantity` exceeds remaining quantity. **Type:** public mutator
+
+## OrderModify.h
+
+### OrderModify(orderId, side, price, quantity)
+- Creates a “modify request” containing replacement values for an existing order. **Type:** public constructor
+
+### GetOrderId()
+- Returns the target order ID. **Type:** public getter (const)
+
+### GetSide()
+- Returns the replacement side. **Type:** public getter (const)
+
+### GetPrice()
+- Returns the replacement price. **Type:** public getter (const)
+
+### GetQuantity()
+- Returns the replacement quantity. **Type:** public getter (const)
+
+### ToOrderPointer(type)
+- Converts the modify request into a new `OrderPointer` with the given `OrderType` (useful for cancel+replace). **Type:** public factory (const)
+
+## Trade.h
+
+### Trade(bidTrade, askTrade)
+- Creates a trade object holding bid-side and ask-side execution info. **Type:** public constructor
+
+### GetBidTrade()
+- Returns bid-side execution details. **Type:** public getter (const)
+
+### GetAskTrade()
+- Returns ask-side execution details. **Type:** public getter (const)
+
+## OrderbookLevelInfos.h
+
+### OrderbookLevelInfos(bids, asks)
+- Creates a container holding bid/ask `LevelInfos` snapshots. **Type:** public constructor
+
+### GetBids()
+- Returns bid-side level infos. **Type:** public getter (const)
+
+### GetAsks()
+- Returns ask-side level infos. **Type:** public getter (const)
+
+## Side.h
+
 ### (no methods)
-- Currently contains only includes; no function definitions present. **Type:** translation unit stub
----
+- `enum class Side { Buy, Sell }`. **Type:** enum
 
+## OrderType.h
 
-# src/main.cpp
-### main()
-- Program entry point; currently returns `0` and does not exercise the order book. **Type:** free function / executable entrypoint
+### (no methods)
+- `enum class OrderType { GoodTillCancel, FillAndKill, GoodForDay, Market }`. **Type:** enum
+
+## Usings.h
+
+### (no methods)
+- Aliases: `Price`, `Quantity`, `OrderId`, `orderIds`. **Type:** type aliases
+
+## LevelInfo.h
+
+### (no methods)
+- `struct LevelInfo { Price price; Quantity quantity; }` and `using LevelInfos = std::vector<LevelInfo>`. **Type:** struct + alias
+
+## TradeInfo.h
+
+### (no methods)
+- `struct TradeInfo { OrderId orderId_; Price price_; Quantity Quantity_; }`. **Type:** struct (data-only)
+
+## Constants.h
+
+### (no methods)
+- `struct Constants { ... }` (fields not visible in retrieved snippet). **Type:** struct / constants containe
