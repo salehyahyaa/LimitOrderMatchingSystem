@@ -156,7 +156,10 @@ class Orderbook {
         }
 
         Trades MatchOrder(OrderModify order) {
-          ...
+          if (orders_.contains(order.GetOrderId())) {
+            return { }; 
+          }
+          const auto& [existingOrder, _] = orders_.at(order.GetOrderId());
         }
 
 
