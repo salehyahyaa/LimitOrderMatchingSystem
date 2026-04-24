@@ -102,7 +102,7 @@ class Orderbook {
 
     public: 
 
-        Trades Addorder(OrderPointer order) {
+        Trades AddOrder(OrderPointer order) {
           if (orders_.contains(order->GetOrderId())) {
             return { };                                                       //if we have a duplicate order incoming, the return statment exisiting out early wont allow the function to countie so duplicates never get added
           }
@@ -146,7 +146,7 @@ class Orderbook {
               else { 
                 auto price = order->GetPrice();                             
                 auto& orders = bids_.at(price);
-                orders.erase(iterator);
+                orders.erase(orderIterator); //should be just iterator
                 if (orders.empty()) {
                   bids_.erase(price);
                 };
@@ -188,7 +188,6 @@ class Orderbook {
       int main() {  
         return 0;
       }
-
 };
 
 /*
